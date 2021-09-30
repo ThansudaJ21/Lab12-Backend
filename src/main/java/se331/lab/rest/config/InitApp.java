@@ -3,14 +3,24 @@ package se331.lab.rest.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import se331.lab.rest.entity.Event;
 import se331.lab.rest.entity.Organizer;
 import se331.lab.rest.repository.EventRepository;
 import se331.lab.rest.repository.OrganizerRepository;
 import se331.lab.rest.repository.ParticipantRepository;
+import se331.lab.rest.security.entity.Authority;
+import se331.lab.rest.security.entity.AuthorityName;
+import se331.lab.rest.security.entity.User;
+import se331.lab.rest.security.repository.AuthorityRepository;
+import se331.lab.rest.security.repository.UserRepository;
 
 import javax.transaction.Transactional;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.Date;
 
 @Component
 public class InitApp implements ApplicationListener<ApplicationReadyEvent> {
@@ -20,6 +30,11 @@ public class InitApp implements ApplicationListener<ApplicationReadyEvent> {
     OrganizerRepository organizerRepository;
     @Autowired
     ParticipantRepository participantRepository;
+    @Autowired
+    AuthorityRepository authorityRepository;
+    @Autowired
+    UserRepository userRepository;
+
     @Override
     @Transactional
     public void onApplicationEvent(ApplicationReadyEvent applicationReadyEvent) {
@@ -75,5 +90,51 @@ public class InitApp implements ApplicationListener<ApplicationReadyEvent> {
                 .build());
         tempEvent.setOrganizer(org3);
         org3.getOwnEvents().add(tempEvent);
-    }
+        addUser();
+            }
+
+               User user1, user2, user3;
+    private void addUser() {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                Authority authUser = Authority.builder().name(AuthorityName.ROLE_USER).build();
+                Authority authAdmin = Authority.builder().name(AuthorityName.ROLE_ADMIN).build();
+                user1 = User.builder()
+                                .username("admin")
+                                .password(encoder.encode("admin"))
+                                .firstname("admin")
+                                .lastname("admin")
+                                .email("admin@admin.com")
+                                .enabled(true)
+                                .lastPasswordResetDate(Date.from(LocalDate.of(2021, 01, 01).atStartOfDay(ZoneId.systemDefault()).toInstant()))
+                                .build();
+
+                        user2 = User.builder()
+                                .username("user")
+                                .password(encoder.encode("user"))
+                                .firstname("user")
+                                .lastname("user")
+                                .email("enabled@user.com")
+                                .enabled(true)
+                                .lastPasswordResetDate(Date.from(LocalDate.of(2021, 01, 01).atStartOfDay(ZoneId.systemDefault()).toInstant()))
+                                .build();
+                user3 = User.builder()
+                                .username("disableUser")
+                                .password(encoder.encode("disableUser"))
+                                .firstname("disableUser")
+                                .lastname("disableUser")
+                                .email("disableUser@user.com")
+                                .enabled(false)
+                                .lastPasswordResetDate(Date.from(LocalDate.of(2021, 01, 01).atStartOfDay(ZoneId.systemDefault()).toInstant()))
+                                .build();
+                authorityRepository.save(authUser);
+                authorityRepository.save(authAdmin);
+                user1.getAuthorities().add(authUser);
+                user1.getAuthorities().add(authAdmin);
+                user2.getAuthorities().add(authUser);
+                user3.getAuthorities().add(authUser);
+                userRepository.save(user1);
+                userRepository.save(user2);
+                userRepository.save(user3);
+
+}
 }
