@@ -21,7 +21,6 @@ jobs:
         run: |
           mvn  clean install  -DskipTests -B
           mkdir -p target/dependency && (cd target/dependency; unzip ../*.jar)
-
       -
         name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -34,7 +33,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
       -
         name: Build and push
         uses: docker/build-push-action@v2
@@ -43,12 +41,11 @@ jobs:
           push: true
           tags: [your dockerhub id]/331-securitylab:latest
       -
-      name: prepare the docker-compose run
-      run: |
-        mkdir 331-backend
-        cp docker-compose-prod.yml 331-backend/docker-compose.yml
-        cd 331-backend
-        docker-compose -H ${{ secrets.HOST_SERVER }} down
-        docker-compose -H ${{ secrets.HOST_SERVER }} pull
-        docker-compose -H ${{ secrets.HOST_SERVER }} up -d
-
+        name: prepare the docker-compose run
+        run: |
+          mkdir 331-backend
+          cp docker-compose-prod.yml 331-backend/docker-compose.yml
+          cd 331-backend
+          docker-compose -H ${{ secrets.HOST_SERVER }} down
+          docker-compose -H ${{ secrets.HOST_SERVER }} pull
+          docker-compose -H ${{ secrets.HOST_SERVER }} up -d
