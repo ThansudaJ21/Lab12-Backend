@@ -44,7 +44,7 @@ jobs:
         name: prepare the docker-compose run
         run: |
           mkdir 331-backend
-          cp docker-compose-prod.yml 331-backend/docker-compose.yml
+          cp docker-compose-prod.yml 331-backend/docker-compose-prod.yml
           cd 331-backend
           docker-compose -H ${{ secrets.HOST_SERVER }} down
           docker-compose -H ${{ secrets.HOST_SERVER }} pull
