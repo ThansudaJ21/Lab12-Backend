@@ -1,0 +1,54 @@
+name: Deploy to Aws Docker on merge prod
+'on':
+  push:
+    branches:
+      - prod
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+      -
+        name: setup java
+        uses: actions/setup-java@v2
+        with:
+          java-version: '16'
+          distribution: 'adopt'
+      -
+        name: run maven
+        run: |
+          mvn  clean install  -DskipTests -B
+          mkdir -p target/dependency && (cd target/dependency; unzip ../*.jar)
+
+      -
+        name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      -
+        name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      -
+        name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      -
+        name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: [your dockerhub id]/331-securitylab:latest
+      -
+      name: prepare the docker-compose run
+      run: |
+        mkdir 331-backend
+        cp docker-compose-prod.yml 331-backend/docker-compose.yml
+        cd 331-backend
+        docker-compose -H ${{ secrets.HOST_SERVER }} down
+        docker-compose -H ${{ secrets.HOST_SERVER }} pull
+        docker-compose -H ${{ secrets.HOST_SERVER }} up -d
+
