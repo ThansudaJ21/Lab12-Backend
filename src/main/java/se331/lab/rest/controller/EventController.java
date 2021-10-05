@@ -17,6 +17,7 @@ import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin
 @Controller
 public class EventController {
     @Autowired
