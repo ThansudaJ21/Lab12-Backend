@@ -13,7 +13,6 @@ import se331.lab.rest.util.LabMapper;
 
 import java.util.List;
 
-@CrossOrigin
 @RestController
 public class OrganizationController {
     @Autowired

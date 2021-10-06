@@ -12,7 +12,6 @@ import se331.lab.rest.util.CloudStorageHelper;
 import javax.servlet.ServletException;
 import java.io.IOException;
 
-@CrossOrigin
 @Controller
 public class BucketController {
     @Autowired
